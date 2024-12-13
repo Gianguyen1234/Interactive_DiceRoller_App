@@ -10,6 +10,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -47,10 +48,14 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     var result by remember { mutableIntStateOf(1) }
     val context = LocalContext.current
     val mediaPlayer = remember { MediaPlayer.create(context, R.raw.dice_roll) }
-    val diceRollHistory = remember { mutableStateListOf<Int>() } // To store the roll history
+    val diceRollHistory = remember { mutableStateListOf<Int>() }
     val rotationAngle = remember { Animatable(0f) }
     val translationX = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
+
+    // Instantiate AchievementSystem
+    val achievementSystem = remember { AchievementSystem() }
+    val newAchievement = achievementSystem.newAchievement.value
 
     val imageResource = when (result) {
         1 -> R.drawable.dice_1
@@ -61,12 +66,21 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
         else -> R.drawable.dice_6
     }
 
+    // Dialog for new achievements
+    // Show Achievement Dialog if a new achievement is unlocked
+    newAchievement?.let { achievement ->
+        AchievementDialog(
+            achievement = achievement,
+            onDismissRequest = { achievementSystem.newAchievement.value = null }
+        )
+    }
+
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp), // Add some padding to avoid content sticking to edges
+            .padding(8.dp, top = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween // Space content between top and bottom
+        verticalArrangement = Arrangement.SpaceBetween
     ) {
 
         // Top: Statistics Section
@@ -80,23 +94,21 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = 50.dp), // Add space at the bottom
+                .padding(bottom = 50.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Dice Image with Shake and Rotation Animations
             Image(
                 painter = painterResource(imageResource),
                 contentDescription = result.toString(),
                 modifier = Modifier
                     .graphicsLayer(
-                        translationX = translationX.value, // Apply shake animation
-                        rotationY = rotationAngle.value   // Apply rotation animation
+                        translationX = translationX.value,
+                        rotationY = rotationAngle.value
                     )
                     .size(150.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Buttons displayed horizontally
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
@@ -104,41 +116,39 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
                 // Roll Button
                 Button(
                     onClick = {
-                        // Play the sound
                         if (mediaPlayer.isPlaying) {
                             mediaPlayer.stop()
                             mediaPlayer.prepare()
                         }
                         mediaPlayer.start()
 
-                        // Start animations: Shake and Rotation
                         coroutineScope.launch {
-                            // Shake animation
                             launch {
                                 translationX.animateTo(
-                                    targetValue = 50f, // Move to the right
+                                    targetValue = 50f,
                                     animationSpec = tween(durationMillis = 100)
                                 )
                                 translationX.animateTo(
-                                    targetValue = -50f, // Move to the left
+                                    targetValue = -50f,
                                     animationSpec = tween(durationMillis = 100)
                                 )
                                 translationX.animateTo(
-                                    targetValue = 0f, // Return to center
+                                    targetValue = 0f,
                                     animationSpec = tween(durationMillis = 100)
                                 )
                             }
 
-                            // Rotation animation
                             rotationAngle.animateTo(
-                                targetValue = 360f, // Full rotation
-                                animationSpec = tween(durationMillis = 500) // Animation duration
+                                targetValue = 360f,
+                                animationSpec = tween(durationMillis = 500)
                             )
-                            rotationAngle.snapTo(0f) // Reset rotation
+                            rotationAngle.snapTo(0f)
 
-                            // Generate new dice result
                             result = (1..6).random()
-                            diceRollHistory.add(result) // Add the result to the history
+                            diceRollHistory.add(result)
+
+                            // Process roll in AchievementSystem
+                            achievementSystem.processRoll(result)
                         }
                     }
                 ) {
@@ -148,7 +158,8 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
                 // Reset Button
                 Button(
                     onClick = {
-                        diceRollHistory.clear() // Clear the history
+                        diceRollHistory.clear()
+                        achievementSystem.reset()
                     }
                 ) {
                     Text("Reset History")

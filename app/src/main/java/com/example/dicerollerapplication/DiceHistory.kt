@@ -42,7 +42,7 @@ fun DiceRollHistory(history: List<Int>, modifier: Modifier = Modifier) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(300.dp) // Limit the height to make it scrollable
+                    .height(200.dp) // Limit the height to make it scrollable
             ) {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
