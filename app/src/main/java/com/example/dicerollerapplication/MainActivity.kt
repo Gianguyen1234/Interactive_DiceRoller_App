@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.dicerollerapplication.ui.theme.DiceRollerApplicationTheme
 import kotlinx.coroutines.launch
+import kotlin.Int
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -63,11 +64,15 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp), // Add some padding to avoid content sticking to edges
+            .padding(8.dp), // Add some padding to avoid content sticking to edges
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween // Space content between top and bottom
     ) {
-        // Top: History Section
+
+        // Top: Statistics Section
+        DiceStatistics(history = diceRollHistory)
+
+        // Middle: History Section
         DiceRollHistory(history = diceRollHistory)
 
         // Bottom: Dice Image and Buttons
@@ -75,7 +80,7 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(bottom = 100.dp), // Add space at the bottom
+                .padding(bottom = 50.dp), // Add space at the bottom
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Dice Image with Shake and Rotation Animations
@@ -87,62 +92,68 @@ fun DiceWithButtonAndImage(modifier: Modifier = Modifier) {
                         translationX = translationX.value, // Apply shake animation
                         rotationY = rotationAngle.value   // Apply rotation animation
                     )
-                    .size(200.dp)
+                    .size(150.dp)
             )
             Spacer(modifier = Modifier.height(16.dp))
-            // Roll Button
-            Button(
-                onClick = {
-                    // Play the sound
-                    if (mediaPlayer.isPlaying) {
-                        mediaPlayer.stop()
-                        mediaPlayer.prepare()
-                    }
-                    mediaPlayer.start()
 
-                    // Start animations: Shake and Rotation
-                    coroutineScope.launch {
-                        // Shake animation
-                        launch {
-                            translationX.animateTo(
-                                targetValue = 50f, // Move to the right
-                                animationSpec = tween(durationMillis = 100)
-                            )
-                            translationX.animateTo(
-                                targetValue = -50f, // Move to the left
-                                animationSpec = tween(durationMillis = 100)
-                            )
-                            translationX.animateTo(
-                                targetValue = 0f, // Return to center
-                                animationSpec = tween(durationMillis = 100)
-                            )
+            // Buttons displayed horizontally
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Roll Button
+                Button(
+                    onClick = {
+                        // Play the sound
+                        if (mediaPlayer.isPlaying) {
+                            mediaPlayer.stop()
+                            mediaPlayer.prepare()
                         }
+                        mediaPlayer.start()
 
-                        // Rotation animation
-                        rotationAngle.animateTo(
-                            targetValue = 360f, // Full rotation
-                            animationSpec = tween(durationMillis = 500) // Animation duration
-                        )
-                        rotationAngle.snapTo(0f) // Reset rotation
+                        // Start animations: Shake and Rotation
+                        coroutineScope.launch {
+                            // Shake animation
+                            launch {
+                                translationX.animateTo(
+                                    targetValue = 50f, // Move to the right
+                                    animationSpec = tween(durationMillis = 100)
+                                )
+                                translationX.animateTo(
+                                    targetValue = -50f, // Move to the left
+                                    animationSpec = tween(durationMillis = 100)
+                                )
+                                translationX.animateTo(
+                                    targetValue = 0f, // Return to center
+                                    animationSpec = tween(durationMillis = 100)
+                                )
+                            }
 
-                        // Generate new dice result
-                        result = (1..6).random()
-                        diceRollHistory.add(result) // Add the result to the history
+                            // Rotation animation
+                            rotationAngle.animateTo(
+                                targetValue = 360f, // Full rotation
+                                animationSpec = tween(durationMillis = 500) // Animation duration
+                            )
+                            rotationAngle.snapTo(0f) // Reset rotation
+
+                            // Generate new dice result
+                            result = (1..6).random()
+                            diceRollHistory.add(result) // Add the result to the history
+                        }
                     }
+                ) {
+                    Text(stringResource(R.string.roll))
                 }
-            ) {
-                Text(stringResource(R.string.roll))
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-            // Reset Button
-            Button(
-                onClick = {
-                    diceRollHistory.clear() // Clear the history
-                }
-            ) {
-                Text("Reset History")
-            }
 
+                // Reset Button
+                Button(
+                    onClick = {
+                        diceRollHistory.clear() // Clear the history
+                    }
+                ) {
+                    Text("Reset History")
+                }
+            }
         }
     }
 }

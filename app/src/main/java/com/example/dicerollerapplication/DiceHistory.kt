@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -81,4 +82,13 @@ fun DiceRollHistory(history: List<Int>, modifier: Modifier = Modifier) {
             thickness = 1.dp
         )
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DiceRollHistoryPreview() {
+    // Example history data for preview
+    val history = listOf(4, 6, 3, 2, 5)
+
+    DiceRollHistory(history = history)
 }
