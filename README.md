@@ -1,6 +1,7 @@
 # Interactive_DiceRoller_App
 # Sections:
 ## Dice History:
+https://github.com/Gianguyen1234/Interactive_DiceRoller_App/tree/Dice-History
 ![image](https://github.com/user-attachments/assets/c62a6f2a-d8f5-493f-81b2-adee60de1f32)
 
 ## Dice Statistics:
