@@ -1,5 +1,9 @@
 # Interactive_DiceRoller_App
 # Sections:
+## 1: Learn state in compose: https://youtu.be/glFl8u7VpV8
+## 2: Dice history: https://youtu.be/PBjUdDxqy74
+## 3: Dice Statistics:  https://youtu.be/qQhWpoCaNjM
+
 ## Dice History:
 Check code here: https://github.com/Gianguyen1234/Interactive_DiceRoller_App/tree/Dice-History
 
